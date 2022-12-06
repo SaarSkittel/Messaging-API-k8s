@@ -2,8 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-celery
-  namespace: authentication
-  labels: 
+  labels:
     app: auth-celery
 
 spec:
@@ -11,45 +10,45 @@ spec:
   selector:
     matchLabels:
       app: auth-celery
-  
+
   template:
     metadata:
       labels:
         app: auth-celery
-    
+
     spec:
       containers:
-      - name: auth-celery
-        image: 
-        command: ['celery', '-A', 'server.celery', 'worker', '-l', 'INFO']
-        env:
-        - name: POSTGRES_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: django-secret
-              key: username-postgres
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: django-secret
-              key: password-postgres
-        - name: ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: django-secret
-              key: access_token
-        - name: POSTGRES_PORT
-          valueFrom: 
-            configMapKeyRef:
-              name: django-config
-              key: postgres-port
-        - name: CELERY_BROKER
-          valueFrom: 
-            configMapKeyRef:
-              name: django-config
-              key: celery-broker
-        - name: CELERY_BACKEND
-          valueFrom: 
-            configMapKeyRef:
-              name: django-config
-              key: celery-backend
+        - name: auth-celery
+          image: saarskittel/authentication-k8s
+          command: ["celery", "-A", "server.celery", "worker", "-l", "INFO"]
+          env:
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: username-postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: password-postgres
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: access_token
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: postgres-port
+            - name: CELERY_BROKER
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: celery-broker
+            - name: CELERY_BACKEND
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: celery-backend

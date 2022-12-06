@@ -3,18 +3,18 @@ version: "3"
 services:
 
   web_server:
-    container_name: web_server
-    image: saarskittel/web-server
+    container_name: web_server-k8s
+    build: ./Web Server
     ports:
       - 80:80
     depends_on:
-     - messaging
+      - messaging
     networks:
       - my-network
-  
+
   messaging:
-    container_name: messaging
-    image: saarskittel/messaging-service
+    container_name: messaging-k8s
+    build: ./Backend/Messaging-Service
     command: bash -c "python manage.py makemigrations && python manage.py makemigrations api && python manage.py migrate && gunicorn server.wsgi:application -b 0.0.0.0:8000"
     expose:
       - 8000
@@ -31,8 +31,8 @@ services:
       - my-network
 
   authentication:
-    container_name: authentication
-    image: saarskittel/auth-service
+    container_name: authentication-k8s
+    build: ./Backend/Authentication-Service
     command: bash -c "python manage.py makemigrations && python manage.py makemigrations api && python manage.py migrate && gunicorn server.wsgi:application -b 0.0.0.0:8001"
     expose:
       - 8000
@@ -49,9 +49,9 @@ services:
       - my-network
 
   messaging-celery:
-    container_name: messaging-celery
-    image: saarskittel/messaging-celery
-    command: celery -A server.celery worker 
+    container_name: messaging-celery-k8s
+    build: ./Backend/Messaging-Service
+    command: celery -A server.celery worker
     environment:
       - DEBUG=0
       - SECRET_KEY=dbaa1_i7%*3r9-=z-+_mz4r-!qeed@(-a_r(g@k8jo8y3r27%m
@@ -65,8 +65,8 @@ services:
       - my-network
 
   auth-celery:
-    container_name: auth-celery
-    image: saarskittel/auth-celery
+    container_name: auth-celery-k8s
+    build: ./Backend/Authentication-Service
     command: celery -A server.celery worker
     environment:
       - DEBUG=0
@@ -79,13 +79,12 @@ services:
       - redis
     networks:
       - my-network
-  
-     
+
   redis:
     container_name: redis
     image: redis:6-alpine
     networks:
-        - my-network
+      - my-network
 
   celery_flower:
     container_name: celery-flower
@@ -156,7 +155,7 @@ services:
       - PGPOOL_ADMIN_USERNAME=admin
       - PGPOOL_ADMIN_PASSWORD=adminpassword
     healthcheck:
-      test: ["CMD", "/opt/bitnami/scripts/pgpool/healthcheck.sh"]
+      test: [ "CMD", "/opt/bitnami/scripts/pgpool/healthcheck.sh" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -188,6 +187,3 @@ volumes:
     driver: local
   pg_1_data:
     driver: local
-
-    
-
