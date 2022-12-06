@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication
+  labels: 
+    app: authentication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication
+  template:
+    metadata:
+      labels:
+        app: authentication
+    spec:
+      containers:
+      - name: authentication
+        image: 
+        command: ["/bin/sh","-c"]
+        args: ["python manage.py makemigrations && python manage.py makemigrations api && python manage.py migrate && gunicorn server.wsgi:application -b 0.0.0.0:8001"]
+        ports:
+        - containerPort: 8001
+        env:
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: django-secret
+              key: username-postgres
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: django-secret
+              key: password-postgres
+        - name: ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: django-secret
+              key: access_token
+        - name: POSTGRES_PORT
+          valueFrom: 
+            configMapKeyRef:
+              name: django-config
+              key: postgres-port
+        - name: CELERY_BROKER
+          valueFrom: 
+            configMapKeyRef:
+              name: django-config
+              key: celery-broker
+        - name: CELERY_BACKEND
+          valueFrom: 
+            configMapKeyRef:
+              name: django-config
+              key: celery-backend
+
+
+              
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+spec:
+  selector:
+    app: authentication.authentication
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001

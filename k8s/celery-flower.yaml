@@ -1,0 +1,31 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower
+  labels:
+    deployment: flower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: celery-flower
+  template:
+    metadata:
+      labels:
+        pod: celery-flower
+      spec:
+        containers:
+        - name: flower
+          image: mher/flower:0.9.5
+          ports:
+            - containerPort: 5555
+          env:
+             - name: FLOWER_PORT
+               value: 5555
+             - name: CELERY_BROKER_URL
+               valueFrom: 
+                configMapKeyRef:
+                  name: django-config
+                  key: celery-broker
+    
