@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: messaging-celery
-  namespace: messaging
   labels:
     app: messaging-celery
 
@@ -27,12 +26,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: django-secret
-                  key: username-postgres
+                  key: postgres-username
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: django-secret
-                  key: password-postgres
+                  key: postgres-password
             - name: ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -43,6 +42,11 @@ spec:
                 configMapKeyRef:
                   name: django-config
                   key: postgres-port
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: postgres-host
             - name: CELERY_BROKER
               valueFrom:
                 configMapKeyRef:

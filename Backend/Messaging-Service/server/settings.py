@@ -97,10 +97,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
-        'USER': os.getenv("postgres-username","./django-secret"),
-        'PASSWORD': os.getenv("postgres-password","./django-secret"),
-        'HOST': os.getenv("postgres-host","./django-config"),
-        'PORT': int(os.getenv("postgres-port","./django-config"))
+        'USER': os.getenv("POSTGRES_USERNAME","./django-secret"),
+        'PASSWORD': os.getenv("POSTGRES_PASSWORD","./django-secret"),
+        'HOST': os.getenv("POSTGRES_HOST","./django-config"),
+        'PORT': int(os.getenv("POSTGRES_PORT","./django-config"))
     }
 }
 
@@ -154,7 +154,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': env("ACCCESS_TOKEN_SECRET"),
+    'SIGNING_KEY': os.getenv("ACCESS_TOKEN","./django-config"),
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
@@ -184,8 +184,8 @@ REST_FRAMEWORK = {
     )
 }
 CELERY_IMPORTS =["api.tasks"]
-CELERY_BROKER_URL = os.getenv("celery-broker","./django-config")
-CELERY_RESULT_BACKEND = os.getenv("celery-backend","./django-config")
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER","./django-config")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND","./django-config")
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

@@ -1,59 +1,49 @@
-# PostgreSQL StatefulSet
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: postgresql-db
+  name: postgres # Sets Deployment name
 spec:
-  serviceName: postgresql-db-service
+  replicas: 1
   selector:
     matchLabels:
-      app: postgresql-db
-  replicas: 2
+      app: postgres
   template:
     metadata:
-    labels:
-      app: postgresql-db
-
+      labels:
+        app: postgres
     spec:
       containers:
-      - name: postgresql-db
-        image: postgres:latest
-        volumeMounts:
-          - name: postgresql-db-disk
-            mountPath: /data
-        env:
-          - name: POSTGRES_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: username-postgres
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: password-postgres
-          - name: PGDATA
-            value: /data/pgdata
-# Volume Claim
-volumeClaimTemplates:
-- metadata:
-  name: postgresql-db-disk
-  spec:
-    accessModes: ["ReadWriteOnce"]
-    resources:
-      requests:
-        storage: 25Gi
+        - name: postgres
+          image: postgres:10.1 # Sets Image
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432 # Exposes container port
+          env:
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: postgres-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: postgres-password
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-db-lb
+  name: postgres # Sets service name
+  labels:
+    app: postgres # Labels and Selectors
 spec:
-  selector:
-    app: postgresql-db
-    type: LoadBalancer
+  type: NodePort # Sets service type
   ports:
-    - port: 5432
-      targetPort: 5432
+    - port: 5432 # Sets port to run the postgres application
+  selector:
+    app: postgres

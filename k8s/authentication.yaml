@@ -29,17 +29,22 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: django-secret
-                  key: username-postgres
+                  key: postgres-username
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: django-secret
-                  key: password-postgres
+                  key: postgres-password
             - name: ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: django-secret
                   key: access_token
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: postgres-host
             - name: POSTGRES_PORT
               valueFrom:
                 configMapKeyRef:
@@ -63,7 +68,7 @@ metadata:
   name: authentication-service
 spec:
   selector:
-    app: authentication.authentication
+    app: authentication
   ports:
     - protocol: TCP
       port: 8001
