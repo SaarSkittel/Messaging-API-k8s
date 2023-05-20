@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower
+  labels:
+    deployment: flower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: celery-flower
+  template:
+    metadata:
+      labels:
+        pod: celery-flower
+    spec:
+      containers:
+        - name: flower
+          image: mher/flower:0.9.5
+          ports:
+            - containerPort: 5555
+          env:
+            - name: REDIS_HOST
+              value: redis-service
+          resources:
+            limits:
+              cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower-service
+spec:
+  selector:
+    app: flower
+
+  ports:
+    - protocol: TCP
+      port: 5555
+      targetPort: 5555

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging-celery
+  labels:
+    app: messaging-celery
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging-celery
+
+  template:
+    metadata:
+      labels:
+        app: messaging-celery
+
+    spec:
+      containers:
+        - name: messaging-celery
+          image: saarskittel/messaging-k8s
+          command: ["celery", "-A", "server.celery", "worker", "-l", "INFO"]
+          env:
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: postgres-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: postgres-password
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: access_token
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: postgres-port
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: postgres-host
+            - name: CELERY_BROKER
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: celery-broker
+            - name: CELERY_BACKEND
+              valueFrom:
+                configMapKeyRef:
+                  name: django-config
+                  key: celery-backend

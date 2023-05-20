@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+data:
+  celery-broker: redis://redis-service:6379/0
+  celery-backend: redis://redis-service:6379/0
+  postgres-port: "5432"
+  postgres-host: postgres
